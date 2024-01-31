@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EmergencyOverlayActivity">
+    tools:context=".EmergencyOverlayActivity"
+    >
 
     <Button
         android:id="@+id/overlay_button"

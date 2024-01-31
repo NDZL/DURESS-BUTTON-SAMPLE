@@ -1,6 +1,7 @@
 package com.zebra.duress_button_sample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,7 +23,10 @@ import java.util.TimerTask;
 public class EmergencyOverlayActivity extends AppCompatActivity {
 
     private ActivityEmergencyOverlayBinding binding;
+    String TAG = "EmergencyOverlayActivity";
 
+    static int counter =0;
+    Timer timer = new Timer();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +38,7 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
         binding.overlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                timer.cancel();
                 finish();
             }
         });
@@ -40,16 +46,24 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
         setShowWhenLocked(true);
         setTurnScreenOn(true);
 
-        Handler  mHandler = new Handler();
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                mHandler.post(() -> {
-                    if(  ((ColorDrawable)binding.getRoot().getBackground()).getColor() != Color.RED)
-                        binding.getRoot().setBackgroundColor(Color.RED);
-                    else
-                        binding.getRoot().setBackgroundColor(Color.YELLOW);
+
+                runOnUiThread( () -> {
+                    try {
+                        if( counter++ % 2 == 0){
+                            binding.getRoot().setBackgroundColor(Color.RED);
+                            Log.d(TAG, "setBackgroundColor(Color.RED)");
+                        }
+                        else {
+                            binding.getRoot().setBackgroundColor(Color.YELLOW);
+                            Log.d(TAG, "setBackgroundColor(Color.YELLOW)");
+                        }
+                        binding.getRoot().invalidate();
+                        Thread.sleep(10);
+                    } catch (Exception e) {}
 
                 });
             }
