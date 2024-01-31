@@ -27,7 +27,7 @@ The Duress button service, as seen from the keyguard lock
 
 Ongoing Alert
 
-![image](https://github.com/NDZL/DURESS-BUTTON-SAMPLE/assets/11386676/3813721d-8c48-4abc-ae6e-ea4910621acf)
+![image](https://github.com/NDZL/DURESS-BUTTON-SAMPLE/assets/11386676/8e1d3da8-bdbf-4c74-8bee-040e70288d2e)
 ![image](https://github.com/NDZL/DURESS-BUTTON-SAMPLE/assets/11386676/e1f164ae-d0a0-49fc-8987-ba29e206d9e0)
 
 
