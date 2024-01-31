@@ -33,6 +33,13 @@ class EmergencyAccessibilityService : AccessibilityService() {
          //val mm =MicManager( /*this as Context*/)  //EXCP HERE Companion cannot be cast to android.content.Context
     }
 
+    fun startAct(info: String){
+        Log.d(TAG, "startAct")
+        startActivity(Intent(this, EmergencyOverlayActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra("emergency_type", info);
+        })
+    }
     override fun onServiceConnected() {
         super.onServiceConnected()
 
@@ -53,12 +60,24 @@ class EmergencyAccessibilityService : AccessibilityService() {
 
     }
 
+    var remoteAlertSet =false
+
     var timerRemoteAlertMonitor = Timer()
         .schedule(timerTask {
             Log.d(TAG, "timerRemoteAlertMonitor periodic callback invoked")
             try {
                 val cxnt48Emergency = URL("https://cxnt48.com/emergency?get").readText()
                 Log.i(TAG, "cxnt48Emergency: " + cxnt48Emergency)
+                val webEmergencyBundle = cxnt48Emergency.split(";")
+                val remotelySetAlertType = webEmergencyBundle[0]
+                val remotelySetAlertEpochMillis = webEmergencyBundle[1].toLong(10)
+                val currentEpochMillis = System.currentTimeMillis()
+                if(!remoteAlertSet && currentEpochMillis-remotelySetAlertEpochMillis <20*1000 && remotelySetAlertType!="NO_EMERGENCY") {
+                    startAct(remotelySetAlertType)
+                    remoteAlertSet = true
+                }
+                else
+                    remoteAlertSet = false
 
             } catch (e: Exception) {
                 Log.d(TAG, "timerRemoteAlertMonitor periodic callback EXCEPTION: " + e.toString())
@@ -107,9 +126,7 @@ class EmergencyAccessibilityService : AccessibilityService() {
                 }, 0, 1000)
 
                 //DISPLAY A SYSTEM ALERT WINDOW
-                startActivity(Intent(this, EmergencyOverlayActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                })
+                startAct("USER-INITIATED ALARM")
 
             } catch (e: Exception) { }
         }

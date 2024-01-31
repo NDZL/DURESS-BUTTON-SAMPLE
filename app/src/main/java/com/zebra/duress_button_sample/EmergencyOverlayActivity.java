@@ -35,6 +35,12 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String value = extras.getString("emergency_type");
+            binding.overlayButton.setText("ONGOING EMERGENCY! "+value);
+        }
+
         binding.overlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
