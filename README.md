@@ -11,3 +11,8 @@ Please be aware that this application / sample is provided as-is for demonstrati
 - grant access to the Accessibility Service
     ```adb shell settings put secure enabled_accessibility_services com.zebra.duress_button_sample/com.zebra.duress_button_sample.EmergencyAccessibilityService```
 
+### Run
+- reboot the device, so the duress button service is automatically started
+- long-press the left-side hardare button of any Zebra device to trigger the alarm
+- a modal window is displayed on top of all apps, flashing the screnn
+- long-press again to silent it
