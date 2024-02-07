@@ -7,6 +7,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -27,6 +29,10 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
 
     static int counter =0;
     Timer timer = new Timer();
+
+    Timer toneTimer = new Timer();
+
+    ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +47,20 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
             binding.overlayButton.setText("ONGOING EMERGENCY! "+value);
         }
 
-        binding.overlayButton.setOnClickListener(new View.OnClickListener() {
+        toneTimer.schedule(new TimerTask() {
             @Override
-            public void onClick(View v) {
+            public void run() {
+                tg.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
+            }
+        }, 0, 1000);
+
+        binding.overlayButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
                 timer.cancel();
+                toneTimer.cancel();
                 finish();
+                return false;
             }
         });
 

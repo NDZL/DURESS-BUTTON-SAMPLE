@@ -17,7 +17,6 @@ import java.net.URL
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
-//best doc on shared audio capturing: https://developer.android.com/guide/topics/media/platform/sharing-audio-input
 class EmergencyAccessibilityService : AccessibilityService() {
 
     val TAG = "EmergencyAccessibilityService"
@@ -30,37 +29,16 @@ class EmergencyAccessibilityService : AccessibilityService() {
     }
 
     companion object{
-         //val mm =MicManager( /*this as Context*/)  //EXCP HERE Companion cannot be cast to android.content.Context
     }
 
-    fun startAct(info: String){
-        Log.d(TAG, "startAct")
-        startActivity(Intent(this, EmergencyOverlayActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            putExtra("emergency_type", info);
-        })
-    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
-
-        Log.d(TAG, "accessib service is connected")
-
-        createNotificationChannel()
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent =
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("DURESS BUTTON AVAILABLE")
-            .setContentText("Long press the PTT button to trigger an emergency alert")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentIntent(pendingIntent)
-            .build()
-        startForeground(2002, notification)
-        Log.d(TAG, "accessib startForeground just called")
 
     }
 
     var remoteAlertSet =false
+    var remotelySetAlertType ="N/A"
 
     var timerRemoteAlertMonitor = Timer()
         .schedule(timerTask {
@@ -69,15 +47,20 @@ class EmergencyAccessibilityService : AccessibilityService() {
                 val cxnt48Emergency = URL("https://cxnt48.com/emergency?get").readText()
                 Log.i(TAG, "cxnt48Emergency: " + cxnt48Emergency)
                 val webEmergencyBundle = cxnt48Emergency.split(";")
-                val remotelySetAlertType = webEmergencyBundle[0]
+                remotelySetAlertType = webEmergencyBundle[0]
                 val remotelySetAlertEpochMillis = webEmergencyBundle[1].toLong(10)
                 val currentEpochMillis = System.currentTimeMillis()
-                if(!remoteAlertSet && currentEpochMillis-remotelySetAlertEpochMillis <20*1000 && remotelySetAlertType!="NO_EMERGENCY") {
-                    startAct(remotelySetAlertType)
+                if( (!remoteAlertSet) && (currentEpochMillis-remotelySetAlertEpochMillis <20*1000) && remotelySetAlertType!="NO_EMERGENCY") {
+                    //startAct(remotelySetAlertType)
+                    startActivity(Intent(baseContext, EmergencyOverlayActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        putExtra("emergency_type", remotelySetAlertType);
+                    })
                     remoteAlertSet = true
                 }
-                else
+                else {
                     remoteAlertSet = false
+                }
 
             } catch (e: Exception) {
                 Log.d(TAG, "timerRemoteAlertMonitor periodic callback EXCEPTION: " + e.toString())
@@ -114,45 +97,24 @@ class EmergencyAccessibilityService : AccessibilityService() {
         return super.onKeyEvent(event)
     }
 
-    lateinit var toneTimer: Timer
     private fun triggerEmergencyAlarm() {
 
         if(isAlarmOn) {
             Log.d(TAG, "triggerEmergencyAlarm starting Tone")
             try {
-                toneTimer = Timer()
-                toneTimer.schedule(timerTask {
-                    tg.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
-                }, 0, 1000)
-
-                //DISPLAY A SYSTEM ALERT WINDOW
-                startAct("USER-INITIATED ALARM")
+                    startActivity(Intent(baseContext, EmergencyOverlayActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        putExtra("emergency_type", "USER INITIATED ALARM");
+                    })
 
             } catch (e: Exception) { }
         }
         else{
             Log.d(TAG, "triggerEmergencyAlarm cancel Tone")
             try{
-                toneTimer.cancel()
+
             } catch (e: Exception) { }
         }
     }
 
-
-    //BOOT-AWARE FGS
-    private val CHANNEL_ID = "DURESS-FGS"
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "NotificatonAccessiblity Name",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val manager = getSystemService(
-                NotificationManager::class.java
-            )
-            manager.createNotificationChannel(serviceChannel)
-        }
-    }
 }
