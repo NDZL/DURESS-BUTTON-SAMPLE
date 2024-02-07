@@ -21,9 +21,7 @@ Please be aware that this application / sample is provided as-is for demonstrati
 
 ### Screenshots
 
-The Duress button service, as seen from the keyguard lock
-
-![image](https://github.com/NDZL/DURESS-BUTTON-SAMPLE/assets/11386676/efbc9dd6-2f7a-4c5e-8867-494c2e54e5e9)
+The Duress button service
 
 Ongoing Alert
 
