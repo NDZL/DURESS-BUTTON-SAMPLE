@@ -12,6 +12,9 @@ Please be aware that this application / sample is provided as-is for demonstrati
     ```adb shell settings put secure enabled_accessibility_services com.zebra.duress_button_sample/com.zebra.duress_button_sample.EmergencyAccessibilityService```
 
 - when installing and configuring manually, grant all the permissions from the app's Info activty, including 'Display over other apps'
+- and set it as an Accessibility Service
+    ![image](https://github.com/NDZL/DURESS-BUTTON-SAMPLE/assets/11386676/57857212-8bd5-4ca4-a473-955a3a18e3c1)
+
 
 ### Run
 - reboot the device, so the duress button service is automatically started
